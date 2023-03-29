@@ -36,6 +36,12 @@ def buyLotsOfFruit(orderList):
     """
     totalCost = 0.0
     "*** YOUR CODE HERE ***"
+    for order in orderList:
+        key, quantity = order
+        if key not in fruitPrices:
+            print("We have %s in stock, please order something else" %key)
+            return None
+        totalCost += fruitPrices[key] * quantity
     return totalCost
 
 
