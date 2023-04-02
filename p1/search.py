@@ -88,33 +88,61 @@ def depthFirstSearch(problem):
     """
     "*** YOUR CODE HERE ***"
     # Stack implementation with visited set optimization
-    stack = util.Stack()
-    visitedPositions = set()
-
     # node structure ([x, y], ['... Action'])
-    stack.push((problem.getStartState(), []))
 
-    while not stack.isEmpty():
+    # SEED START STATE
+    frontierStack = util.Stack()
+    frontierStack.push((problem.getStartState(), []))
+    explored = set()
+
+    while not frontierStack.isEmpty():
         # HANDLE CURRENT STATE
-        positionState, path = stack.pop()
-        visitedPositions.add(positionState)
+        position, path = frontierStack.pop()
+        explored.add(position)
 
         # GOAL TEST
-        if problem.isGoalState(positionState):
+        if problem.isGoalState(position):
             return path  # SOLUTION
 
         # EXPAND FRINGE
-        successorStates = problem.getSuccessors(positionState)
-        for position, action, _ in successorStates:
-            if position not in visitedPositions:
-                stack.push((position, path + [action]))
+        successorStates = problem.getSuccessors(position)
+        for successorPosition, action, _ in successorStates:
+            if successorPosition not in explored:
+                frontierStack.push((successorPosition, path + [action]))
 
     return []  # RETURN FAILURE
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Queue implementation with visited set optimization
+    # node structure ([x, y], ['... Action'])
+
+    # SEED START STATE
+    root = (problem.getStartState(), [])
+    frontierQueue = util.Queue()
+    frontierQueue.push(root)
+    explored = set()
+    generated = set()
+
+    while not frontierQueue.isEmpty():
+        # HANDLE CURRENT STATE
+        position, path = frontierQueue.pop()
+        explored.add(position)
+
+        # GOAL TEST
+        if problem.isGoalState(position):
+            return path # SOLUTION
+
+        # EXPAND FRINGE
+        successorStates = problem.getSuccessors(position)
+        for successorPosition, action, _ in successorStates:
+            if successorPosition not in explored and successorPosition not in generated:
+                generated.add(successorPosition)
+                frontierQueue.push((successorPosition, path + [action]))
+
+    return []  # RETURN FAILURE
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
