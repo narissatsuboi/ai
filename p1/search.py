@@ -150,7 +150,38 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # node structure ((item), priority)) => ((position, path), priority))
+
+    # SEED START STATE
+    frontierPQ = util.PriorityQueue()
+    start = problem.getStartState()
+    frontierPQ.push((start, []), problem.getCostOfActions([]))
+    explored = set()
+    generated = set(start)
+    path = []
+
+    while not frontierPQ.isEmpty():
+        # HANDLE CURRENT STATE
+        position, path = frontierPQ.pop()
+
+        if position not in explored:
+            explored.add(position)
+
+            # GOAL TEST
+            if problem.isGoalState(position):
+                return path
+
+            # EXPAND FRINGE
+            successorStates = problem.getSuccessors(position)
+            for successorPosition, action, _ in successorStates:
+                if successorPosition not in explored and successorPosition not in generated:
+                    generated.add(successorPosition)
+                    frontierPQ.push((successorPosition, path + [action]),
+                                    problem.getCostOfActions(path + [action]))
+                elif successorPosition in generated:
+                    frontierPQ.update((successorPosition, path + [action]),
+                                      problem.getCostOfActions(path + [action]))
+    return []  # RETURN FAILURE
 
 
 def nullHeuristic(state, problem=None):
