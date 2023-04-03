@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -112,6 +114,7 @@ def depthFirstSearch(problem):
 
     return []  # RETURN FAILURE
 
+
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
@@ -132,7 +135,7 @@ def breadthFirstSearch(problem):
 
         # GOAL TEST
         if problem.isGoalState(position):
-            return path # SOLUTION
+            return path  # SOLUTION
 
         # EXPAND FRINGE
         successorStates = problem.getSuccessors(position)
@@ -147,7 +150,38 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # node structure ((item), priority)) => ((position, path), priority))
+
+    # SEED START STATE
+    frontierPQ = util.PriorityQueue()
+    start = problem.getStartState()
+    frontierPQ.push((start, []), problem.getCostOfActions([]))
+    explored = set()
+    generated = set(start)
+
+    while not frontierPQ.isEmpty():
+        # HANDLE CURRENT STATE
+        position, path = frontierPQ.pop()
+
+        if position not in explored:
+            explored.add(position)
+
+            # GOAL TEST
+            if problem.isGoalState(position):
+                return path
+
+            # EXPAND FRINGE
+            successorStates = problem.getSuccessors(position)
+            for successorPosition, action, _ in successorStates:
+                if successorPosition not in explored and successorPosition not in generated:
+                    generated.add(successorPosition)
+                    frontierPQ.push((successorPosition, path + [action]),
+                                    problem.getCostOfActions(path + [action]))
+                elif successorPosition in generated:
+                    frontierPQ.update((successorPosition, path + [action]),
+                                      problem.getCostOfActions(path + [action]))
+    return []  # RETURN FAILURE
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -155,6 +189,7 @@ def nullHeuristic(state, problem=None):
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
     return 0
+
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
