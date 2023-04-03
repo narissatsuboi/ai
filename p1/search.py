@@ -158,7 +158,6 @@ def uniformCostSearch(problem):
     frontierPQ.push((start, []), problem.getCostOfActions([]))
     explored = set()
     generated = set(start)
-    path = []
 
     while not frontierPQ.isEmpty():
         # HANDLE CURRENT STATE
