@@ -106,7 +106,7 @@ def depthFirstSearch(problem):
         if problem.isGoalState(position):
             return path  # SOLUTION
 
-        # EXPAND FRINGE
+        # EXPAND FRINGE  # new fringe is path + [action] the path the next node at the end
         successorStates = problem.getSuccessors(position)
         for successorPosition, action, _ in successorStates:
             if successorPosition not in explored:
@@ -194,7 +194,43 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # SEED START STATE
+    frontierPQ = util.PriorityQueue()
+    start = problem.getStartState()
+    fn, hn = problem.getCostOfActions([]), heuristic(start, problem)
+    an = fn + hn
+    frontierPQ.push((start, [], an), an)
+
+    explored = dict()
+
+    while not frontierPQ.isEmpty():
+        # HANDLE CURRENT STATE
+        position, path, an = frontierPQ.pop()
+
+        if position not in explored:
+            explored[position] = an
+
+            # GOAL TEST
+            if problem.isGoalState(position):
+                return path
+
+            # EXPAND FRINGE
+            successorStates = problem.getSuccessors(position)
+            for successorPosition, action, _ in successorStates:
+                fn = problem.getCostOfActions(path + [action])
+                hn = heuristic(successorPosition, problem)
+                an = fn + hn
+                successor = (successorPosition, path + [action], an)
+
+                if successorPosition not in explored:
+                    frontierPQ.push(successor, an)
+                elif successorPosition in explored and an < explored[successorPosition]:
+                    explored[successorPosition] = an
+                    frontierPQ.update(successor, an)
+                elif successorPosition in explored and an >= explored[successorPosition]:
+                    continue
+
+    return []  # RETURN FAILURE
 
 
 # Abbreviations
