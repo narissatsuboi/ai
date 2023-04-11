@@ -122,27 +122,53 @@ def breadthFirstSearch(problem):
     # node structure ([x, y], ['... Action'])
 
     # SEED START STATE
-    root = (problem.getStartState(), [])
+    # frontierQueue = util.Queue()
+    # root = (problem.getStartState(), [], 0)
+    # frontierQueue.push(root)
+    # explored = set()
+    # generated = set()
+    #
+    # while not frontierQueue.isEmpty():
+    #     # HANDLE CURRENT STATE
+    #     state, path, currCost = frontierQueue.pop()
+    #     explored.add(state)
+    #
+    #     # GOAL TEST
+    #     if problem.isGoalState(state):
+    #         return path  # SOLUTION
+    #
+    #     # EXPAND FRINGE
+    #     successorStates = problem.getSuccessors(state)
+    #     for successorPosition, action, cost in successorStates:
+    #         if successorPosition not in explored and successorPosition not in generated:
+    #             generated.add(successorPosition)
+    #             frontierQueue.push((successorPosition, path + [action], cost))
+    #
+    # return []  # RETURN FAILURE
+
     frontierQueue = util.Queue()
+    root = (problem.getStartState(), [], 0)
     frontierQueue.push(root)
-    explored = set()
-    generated = set()
+    # explored = set()
+    explored = []
 
     while not frontierQueue.isEmpty():
         # HANDLE CURRENT STATE
-        position, path = frontierQueue.pop()
-        explored.add(position)
+        state, path, currCost = frontierQueue.pop()
 
-        # GOAL TEST
-        if problem.isGoalState(position):
-            return path  # SOLUTION
+        if state not in explored:
+            # explored.add(state)
+            explored.append(state)
 
-        # EXPAND FRINGE
-        successorStates = problem.getSuccessors(position)
-        for successorPosition, action, _ in successorStates:
-            if successorPosition not in explored and successorPosition not in generated:
-                generated.add(successorPosition)
-                frontierQueue.push((successorPosition, path + [action]))
+            # GOAL TEST
+            if problem.isGoalState(state):
+                return path  # SOLUTION
+
+            # EXPAND FRINGE
+            successorStates = problem.getSuccessors(state)
+            for state, action, cost in successorStates:
+                if state not in explored:
+                    frontierQueue.push((state, path + [action], cost))
 
     return []  # RETURN FAILURE
 
