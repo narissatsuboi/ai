@@ -388,7 +388,48 @@ def cornersHeuristic(state, problem):
     walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0  # Default to trivial solution
+
+    def manhattanDistance(xy1, xy2):
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    """
+    returns the minimum corner md, 1475 nodes 
+    """
+    # hn = float('inf')
+    # startxy, cornersRemaining = state
+    #
+    # if not cornersRemaining:
+    #     return 0
+    #
+    # for cornerxy in cornersRemaining:
+    #     hn = min(hn, manhattanDistance(startxy, cornerxy))
+    # return hn
+
+    """
+    returns the avg md, 1289 nodes 
+    """
+    # hn = 0
+    # startxy, cornersRemaining = state
+    #
+    # if not cornersRemaining:
+    #     return 0
+    #
+    # for cornerxy in cornersRemaining:
+    #     hn += manhattanDistance(startxy, cornerxy)
+    # return hn / len(cornersRemaining)
+
+
+    """
+    returns the maximum corner md, 1136 nodes 
+    """
+    hn = 0
+    startxy, cornersRemaining = state
+
+    if not cornersRemaining:
+        return hn
+    for cornerxy in cornersRemaining:
+        hn = max(hn, manhattanDistance(startxy, cornerxy))
+    return hn
 
 
 class AStarCornersAgent(SearchAgent):

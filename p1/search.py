@@ -220,40 +220,39 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    # SEED START STATE
     frontierPQ = util.PriorityQueue()
     start = problem.getStartState()
     fn, hn = problem.getCostOfActions([]), heuristic(start, problem)
     an = fn + hn
     frontierPQ.push((start, [], an), an)
-
+    print("start state: ", start)
     explored = dict()
 
     while not frontierPQ.isEmpty():
         # HANDLE CURRENT STATE
-        position, path, an = frontierPQ.pop()
+        state, path, an = frontierPQ.pop()
 
-        if position not in explored:
-            explored[position] = an
+        if state not in explored:
+            explored[state] = an
 
             # GOAL TEST
-            if problem.isGoalState(position):
+            if problem.isGoalState(state):
                 return path
 
             # EXPAND FRINGE
-            successorStates = problem.getSuccessors(position)
-            for successorPosition, action, _ in successorStates:
+            successorStates = problem.getSuccessors(state)
+            for state, action, _ in successorStates:
                 fn = problem.getCostOfActions(path + [action])
-                hn = heuristic(successorPosition, problem)
+                hn = heuristic(state, problem)
                 an = fn + hn
-                successor = (successorPosition, path + [action], an)
+                successor = (state, path + [action], an)
 
-                if successorPosition not in explored:
+                if state not in explored:
                     frontierPQ.push(successor, an)
-                elif successorPosition in explored and an < explored[successorPosition]:
-                    explored[successorPosition] = an
+                elif state in explored and an < explored[state]:
+                    explored[state] = an
                     frontierPQ.update(successor, an)
-                elif successorPosition in explored and an >= explored[successorPosition]:
+                elif state in explored and an >= explored[state]:
                     continue
 
     return []  # RETURN FAILURE
