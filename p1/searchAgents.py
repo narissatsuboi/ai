@@ -121,7 +121,7 @@ class SearchAgent(Agent):
         self.actions = self.searchFunction(problem)  # Find a path
         totalCost = problem.getCostOfActions(self.actions)
         print('Path found with total cost of %d in %.1f seconds' % (
-        totalCost, time.time() - starttime))
+            totalCost, time.time() - starttime))
         if '_expanded' in dir(problem): print(
             'Search nodes expanded: %d' % problem._expanded)
 
@@ -418,7 +418,6 @@ def cornersHeuristic(state, problem):
     #     hn += manhattanDistance(startxy, cornerxy)
     # return hn / len(cornersRemaining)
 
-
     """
     returns the maximum corner md, 1136 nodes 
     """
@@ -529,9 +528,55 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    def manhattanDistance(xy1, xy2):
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    # """
+    # Min md only, 13898 nodes, 2/4 points
+    # """
+    # hn = float('inf')
+    # startxy, foodGrid = state
+    # foodList = foodGrid.asList()
+    #
+    # if not foodList:
+    #     return 0
+    #
+    # for foodxy in foodList:
+    #     hn = min(hn, manhattanDistance(startxy, foodxy))
+    #
+    # return hn
+
+    # """
+    # Max md only, 9551 nodes, 3/4 points
+    # """
+    # hn = 0
+    # startxy, foodGrid = state
+    # foodList = foodGrid.asList()
+    #
+    # if not foodList:
+    #     return hn
+    #
+    # for foodxy in foodList:
+    #     hn = max(hn, manhattanDistance(startxy, foodxy))
+    #
+    # return hn
+
+    """
+    Max maze dist only, 4137 nodes, 5/4 points
+    """
+    hn = 0
+    startxy, foodGrid = state
+    foodList = foodGrid.asList()
+
+    if not foodList:
+        return hn
+
+    for foodxy in foodList:
+        hn = max(hn, mazeDistance(startxy, foodxy, problem.startingGameState))
+
+    return hn
 
 
 class ClosestDotSearchAgent(SearchAgent):
