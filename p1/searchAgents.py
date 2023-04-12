@@ -393,7 +393,7 @@ def cornersHeuristic(state, problem):
         return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
     """
-    returns the minimum corner md, 1475 nodes 
+    heuristic: minimum corner manhattan distance, 1475 nodes 
     """
     # hn = float('inf')
     # startxy, cornersRemaining = state
@@ -406,7 +406,7 @@ def cornersHeuristic(state, problem):
     # return hn
 
     """
-    returns the avg md, 1289 nodes 
+    heuristic: average manhattan distance of remaining corners, 1289 nodes 
     """
     # hn = 0
     # startxy, cornersRemaining = state
@@ -419,7 +419,7 @@ def cornersHeuristic(state, problem):
     # return hn / len(cornersRemaining)
 
     """
-    returns the maximum corner md, 1136 nodes 
+    heuristic: maximum corner manhattan distance, 1136 nodes 
     """
     hn = 0
     startxy, cornersRemaining = state
@@ -530,12 +530,12 @@ def foodHeuristic(state, problem):
     """
     "*** YOUR CODE HERE ***"
 
-    def manhattanDistance(xy1, xy2):
-        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+    # def manhattanDistance(xy1, xy2):
+    #     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
 
-    # """
-    # Min md only, 13898 nodes, 2/4 points
-    # """
+    """
+    heuristic: minimum manhattan distance, 13898 nodes, 2/4 points
+    """
     # hn = float('inf')
     # startxy, foodGrid = state
     # foodList = foodGrid.asList()
@@ -548,9 +548,9 @@ def foodHeuristic(state, problem):
     #
     # return hn
 
-    # """
-    # Max md only, 9551 nodes, 3/4 points
-    # """
+    """
+    heuristic: maximum manhattan distance, 9551 nodes, 3/4 points
+    """
     # hn = 0
     # startxy, foodGrid = state
     # foodList = foodGrid.asList()
@@ -564,7 +564,7 @@ def foodHeuristic(state, problem):
     # return hn
 
     """
-    Max maze dist only, 4137 nodes, 5/4 points
+    heuristic: maximum of maze distance, 4137 nodes, 5/4 points
     """
     hn = 0
     startxy, foodGrid = state
