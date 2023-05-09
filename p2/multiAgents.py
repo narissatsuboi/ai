@@ -18,6 +18,7 @@ import random, util
 
 from game import Agent
 
+
 class ReflexAgent(Agent):
     """
     A reflex agent chooses an action at each choice point by examining
@@ -27,7 +28,6 @@ class ReflexAgent(Agent):
     it in any way you see fit, so long as you don't touch our method
     headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -40,12 +40,12 @@ class ReflexAgent(Agent):
         """
         # Collect legal moves and successor states
         legalMoves = gameState.getLegalActions()
-
         # Choose one of the best actions
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
-        bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        bestIndices = [index for index in range(len(scores)) if
+                       scores[index] == bestScore]
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
@@ -69,12 +69,64 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
         newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
+        # newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+
+        def manhattan_distance(startPos, endPos):
+            start_x, start_y = startPos
+            end_x, end_y = endPos
+            return abs(start_x - end_x) + abs(start_y - end_y)
+
+        def manhattan_distance_nearest(start_pos, coordinates):
+            md = float('inf')
+            for coordinate in coordinates:
+                md = min(md, manhattan_distance(start_pos, coordinate))
+            return md
+
+        fn = 0
+
+        # distance to the nearest food pellet
+        food_coordinates = currentGameState.getFood().asList()
+        food_md_nearest = manhattan_distance_nearest(newPos, food_coordinates)
+        pos_holds_food = food_md_nearest == 0
+        # update fn based on nearest food
+        if pos_holds_food:
+            fn += 10
+        else:
+            fn += 1 / food_md_nearest
+
+        # distance to the nearest ghost
+        ghost_md_nearest = float('inf')
+        ghost_nearest = None
+
+        # find the nearest ghost and its md
+        for state in newGhostStates:
+            md = manhattan_distance(newPos, state.getPosition())
+            if md < ghost_md_nearest:
+                ghost_md_nearest = md
+                ghost_nearest = state
+        # update fn based on nearest ghost state
+        if ghost_md_nearest <= 1 and ghost_nearest.scaredTimer == 0:
+            fn -= 10  # run from adjacent ghosts
+        elif ghost_md_nearest <= 5 and ghost_nearest.scaredTimer >= 5:
+            fn += 10   # chase nearby scared ghost
+
+        # distance to nearest capsule
+        # newCapsules = successorGameState.getCapsules()
+        newCapsules = currentGameState.getCapsules()
+        capsule_md_nearest = manhattan_distance_nearest(newPos, newCapsules)
+        pos_holds_capsule = capsule_md_nearest == 0
+        # update fn based on nearest capsule
+        if pos_holds_capsule:
+            fn += 10
+        else:
+            fn += (1/capsule_md_nearest)*3
+
+        return fn
+
 
 def scoreEvaluationFunction(currentGameState):
     """
@@ -85,6 +137,7 @@ def scoreEvaluationFunction(currentGameState):
     (not reflex agents).
     """
     return currentGameState.getScore()
+
 
 class MultiAgentSearchAgent(Agent):
     """
@@ -101,10 +154,11 @@ class MultiAgentSearchAgent(Agent):
     is another abstract class.
     """
 
-    def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
-        self.index = 0 # Pacman is always agent index 0
+    def __init__(self, evalFn='scoreEvaluationFunction', depth='2'):
+        self.index = 0  # Pacman is always agent index 0
         self.evaluationFunction = util.lookup(evalFn, globals())
         self.depth = int(depth)
+
 
 class MinimaxAgent(MultiAgentSearchAgent):
     """
@@ -137,6 +191,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
@@ -148,6 +203,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
+
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -164,6 +220,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
+
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
@@ -173,6 +230,7 @@ def betterEvaluationFunction(currentGameState):
     """
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 # Abbreviation
 better = betterEvaluationFunction
