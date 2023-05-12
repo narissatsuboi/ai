@@ -112,10 +112,9 @@ class ReflexAgent(Agent):
         if ghost_md_nearest <= 1 and ghost_nearest.scaredTimer == 0:
             fn -= 10  # run from adjacent ghosts
         elif ghost_md_nearest <= 5 and ghost_nearest.scaredTimer >= 5:
-            fn += 10   # chase nearby scared ghost
+            fn += 10  # chase nearby scared ghost
 
         # distance to nearest capsule
-        # newCapsules = successorGameState.getCapsules()
         newCapsules = currentGameState.getCapsules()
         capsule_md_nearest = manhattan_distance_nearest(newPos, newCapsules)
         pos_holds_capsule = capsule_md_nearest == 0
@@ -123,7 +122,7 @@ class ReflexAgent(Agent):
         if pos_holds_capsule:
             fn += 10
         else:
-            fn += (1/capsule_md_nearest)*3
+            fn += (1 / capsule_md_nearest) * 3
 
         return fn
 
@@ -165,31 +164,60 @@ class MinimaxAgent(MultiAgentSearchAgent):
     Your minimax agent (question 2)
     """
 
-    def getAction(self, gameState):
+    def terminal_state_test(self, agent_depth, gamestate):
+        max_depth = agent_depth == self.depth
+        gameOver = gamestate.isLose() or gamestate.isWin()
+        return gameOver or max_depth
+
+    def getAction(self, gamestate):
         """
-        Returns the minimax action from the current gameState using self.depth
-        and self.evaluationFunction.
-
-        Here are some method calls that might be useful when implementing minimax.
-
-        gameState.getLegalActions(agentIndex):
-        Returns a list of legal actions for an agent
-        agentIndex=0 means Pacman, ghosts are >= 1
-
-        gameState.generateSuccessor(agentIndex, action):
-        Returns the successor game state after an agent takes an action
-
-        gameState.getNumAgents():
-        Returns the total number of agents in the game
-
-        gameState.isWin():
-        Returns whether or not the game state is a winning state
-
-        gameState.isLose():
-        Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        root_utilities = []
+        root_actions = gamestate.getLegalActions(0)
+        for root_action in root_actions:
+            gamestate_next = gamestate.generateSuccessor(0, root_action)
+            root_utilities.append(self.minimax(0, 0, gamestate_next))
+        max_utility = max(root_utilities)
+        max_index = root_utilities.index(max_utility)
+        max_action = root_actions[max_index]
+        return max_action
+
+    def update_agent_idx(self, agent_idx, gamestate):
+        if agent_idx + 1 == gamestate.getNumAgents():
+            return 0
+        return agent_idx + 1
+
+    def minimax(self, agent_idx, agent_depth, gamestate):
+
+        agent_idx_next = self.update_agent_idx(agent_idx, gamestate)
+        if agent_idx_next == self.index:
+            agent_depth += 1
+            return self.maximizer(agent_idx_next, agent_depth, gamestate)
+        return self.minimizer(agent_idx_next, agent_depth, gamestate)
+
+    def minimizer(self, agent_idx, agent_depth, gamestate):
+        if self.terminal_state_test(agent_depth, gamestate):
+            return self.evaluationFunction(gamestate)
+
+        minimizer_utilities = []
+        minimizer_actions = gamestate.getLegalActions(agent_idx)
+        for action in minimizer_actions:
+            gamestate_next = gamestate.generateSuccessor(agent_idx, action)
+            minimizer_utilities.append(self.minimax(agent_idx, agent_depth, gamestate_next))
+
+        return min(minimizer_utilities)
+
+    def maximizer(self, agent_idx, agent_depth, gamestate):
+        if self.terminal_state_test(agent_depth, gamestate):
+            return self.evaluationFunction(gamestate)
+
+        maximizer_utilities = []
+        maximizer_actions = gamestate.getLegalActions(agent_idx)
+        for action in maximizer_actions:
+            gamestate_next = gamestate.generateSuccessor(agent_idx, action)
+            maximizer_utilities.append((self.minimax(agent_idx, agent_depth, gamestate_next)))
+
+        return max(maximizer_utilities)
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
