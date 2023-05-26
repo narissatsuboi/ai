@@ -21,6 +21,7 @@ from collections import defaultdict
 from pprint import PrettyPrinter
 from hashlib import sha1
 from functools import reduce
+
 pp = PrettyPrinter()
 VERBOSE = False
 
@@ -28,6 +29,7 @@ import gridworld
 
 LIVINGREWARD = -0.1
 NOISE = 0.2
+
 
 class ValueIterationTest(testClasses.TestCase):
 
@@ -37,7 +39,8 @@ class ValueIterationTest(testClasses.TestCase):
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         iterations = int(testDict['valueIterations'])
         if 'noise' in testDict: self.grid.setNoise(float(testDict['noise']))
-        if 'livingReward' in testDict: self.grid.setLivingReward(float(testDict['livingReward']))
+        if 'livingReward' in testDict: self.grid.setLivingReward(
+            float(testDict['livingReward']))
         maxPreIterations = 10
         self.numsIterationsForDisplay = list(range(min(iterations, maxPreIterations)))
         self.testOutFile = testDict['test_out_file']
@@ -57,12 +60,17 @@ class ValueIterationTest(testClasses.TestCase):
         failureOutputStdString = ''
         for n in self.numsIterationsForDisplay:
             checkPolicy = (n == self.numsIterationsForDisplay[-1])
-            testPass, stdOutString, fileOutString = self.executeNIterations(grades, moduleDict, solutionDict, n, checkPolicy)
+            testPass, stdOutString, fileOutString = self.executeNIterations(grades,
+                                                                            moduleDict,
+                                                                            solutionDict,
+                                                                            n,
+                                                                            checkPolicy)
             failureOutputStdString += stdOutString
             failureOutputFileString += fileOutString
             if not testPass:
                 self.addMessage(failureOutputStdString)
-                self.addMessage('For more details to help you debug, see test output file %s\n\n' % self.testOutFile)
+                self.addMessage(
+                    'For more details to help you debug, see test output file %s\n\n' % self.testOutFile)
                 self.writeFailureFile(failureOutputFileString)
                 return self.testFail(grades)
         self.removeFailureFileIfExists()
@@ -76,33 +84,43 @@ class ValueIterationTest(testClasses.TestCase):
         valuesKey = "values_k_%d" % n
         if self.comparePrettyValues(valuesPretty, solutionDict[valuesKey]):
             fileOutString += "Values at iteration %d are correct.\n" % n
-            fileOutString += "   Student/correct solution:\n %s\n" % self.prettyValueSolutionString(valuesKey, valuesPretty)
+            fileOutString += "   Student/correct solution:\n %s\n" % self.prettyValueSolutionString(
+                valuesKey, valuesPretty)
         else:
             testPass = False
             outString = "Values at iteration %d are NOT correct.\n" % n
-            outString += "   Student solution:\n %s\n" % self.prettyValueSolutionString(valuesKey, valuesPretty)
-            outString += "   Correct solution:\n %s\n" % self.prettyValueSolutionString(valuesKey, solutionDict[valuesKey])
+            outString += "   Student solution:\n %s\n" % self.prettyValueSolutionString(
+                valuesKey, valuesPretty)
+            outString += "   Correct solution:\n %s\n" % self.prettyValueSolutionString(
+                valuesKey, solutionDict[valuesKey])
             stdOutString += outString
             fileOutString += outString
         for action in actions:
             qValuesKey = 'q_values_k_%d_action_%s' % (n, action)
             qValues = qValuesPretty[action]
             if self.comparePrettyValues(qValues, solutionDict[qValuesKey]):
-                fileOutString += "Q-Values at iteration %d for action %s are correct.\n" % (n, action)
-                fileOutString += "   Student/correct solution:\n %s\n" % self.prettyValueSolutionString(qValuesKey, qValues)
+                fileOutString += "Q-Values at iteration %d for action %s are correct.\n" % (
+                n, action)
+                fileOutString += "   Student/correct solution:\n %s\n" % self.prettyValueSolutionString(
+                    qValuesKey, qValues)
             else:
                 testPass = False
-                outString = "Q-Values at iteration %d for action %s are NOT correct.\n" % (n, action)
-                outString += "   Student solution:\n %s\n" % self.prettyValueSolutionString(qValuesKey, qValues)
-                outString += "   Correct solution:\n %s\n" % self.prettyValueSolutionString(qValuesKey, solutionDict[qValuesKey])
+                outString = "Q-Values at iteration %d for action %s are NOT correct.\n" % (
+                n, action)
+                outString += "   Student solution:\n %s\n" % self.prettyValueSolutionString(
+                    qValuesKey, qValues)
+                outString += "   Correct solution:\n %s\n" % self.prettyValueSolutionString(
+                    qValuesKey, solutionDict[qValuesKey])
                 stdOutString += outString
                 fileOutString += outString
         if checkPolicy:
             if not self.comparePrettyValues(policyPretty, solutionDict['policy']):
                 testPass = False
                 outString = "Policy is NOT correct.\n"
-                outString += "   Student solution:\n %s\n" % self.prettyValueSolutionString('policy', policyPretty)
-                outString += "   Correct solution:\n %s\n" % self.prettyValueSolutionString('policy', solutionDict['policy'])
+                outString += "   Student solution:\n %s\n" % self.prettyValueSolutionString(
+                    'policy', policyPretty)
+                outString += "   Correct solution:\n %s\n" % self.prettyValueSolutionString(
+                    'policy', solutionDict['policy'])
                 stdOutString += outString
                 fileOutString += outString
         return testPass, stdOutString, fileOutString
@@ -112,18 +130,25 @@ class ValueIterationTest(testClasses.TestCase):
             policyPretty = ''
             actions = []
             for n in self.numsIterationsForDisplay:
-                valuesPretty, qValuesPretty, actions, policyPretty = self.runAgent(moduleDict, n)
-                handle.write(self.prettyValueSolutionString('values_k_%d' % n, valuesPretty))
+                valuesPretty, qValuesPretty, actions, policyPretty = self.runAgent(
+                    moduleDict, n)
+                handle.write(
+                    self.prettyValueSolutionString('values_k_%d' % n, valuesPretty))
                 for action in actions:
-                    handle.write(self.prettyValueSolutionString('q_values_k_%d_action_%s' % (n, action), qValuesPretty[action]))
+                    handle.write(self.prettyValueSolutionString(
+                        'q_values_k_%d_action_%s' % (n, action), qValuesPretty[action]))
             handle.write(self.prettyValueSolutionString('policy', policyPretty))
-            handle.write(self.prettyValueSolutionString('actions', '\n'.join(actions) + '\n'))
+            handle.write(
+                self.prettyValueSolutionString('actions', '\n'.join(actions) + '\n'))
         return True
 
     def runAgent(self, moduleDict, numIterations):
-        agent = moduleDict['valueIterationAgents'].ValueIterationAgent(self.grid, discount=self.discount, iterations=numIterations)
+        agent = moduleDict['valueIterationAgents'].ValueIterationAgent(self.grid,
+                                                                       discount=self.discount,
+                                                                       iterations=numIterations)
         states = self.grid.getStates()
-        actions = list(reduce(lambda a, b: set(a).union(b), [self.grid.getPossibleActions(state) for state in states]))
+        actions = list(reduce(lambda a, b: set(a).union(b),
+                              [self.grid.getPossibleActions(state) for state in states]))
         values = {}
         qValues = {}
         policy = {}
@@ -149,7 +174,7 @@ class ValueIterationTest(testClasses.TestCase):
         pretty = ''
         states = self.grid.getStates()
         for ybar in range(self.grid.grid.height):
-            y = self.grid.grid.height-1-ybar
+            y = self.grid.grid.height - 1 - ybar
             row = []
             for x in range(self.grid.grid.width):
                 if (x, y) in states:
@@ -157,10 +182,10 @@ class ValueIterationTest(testClasses.TestCase):
                     if value is None:
                         row.append('   illegal')
                     else:
-                        row.append(formatString.format(elements[(x,y)]))
+                        row.append(formatString.format(elements[(x, y)]))
                 else:
                     row.append('_' * 10)
-            pretty += '        %s\n' % ("   ".join(row), )
+            pretty += '        %s\n' % ("   ".join(row),)
         pretty += '\n'
         return pretty
 
@@ -168,7 +193,7 @@ class ValueIterationTest(testClasses.TestCase):
         return self.prettyPrint(values, '{0:10.4f}')
 
     def prettyPolicy(self, policy):
-        return self.prettyPrint(policy, '{0:10s}')
+        return self.prettyPrint(policy, '{0:10}')
 
     def prettyValueSolutionString(self, name, pretty):
         return '%s: """\n%s\n"""\n\n' % (name, pretty.rstrip())
@@ -198,9 +223,11 @@ class ValueIterationTest(testClasses.TestCase):
 
 class AsynchronousValueIterationTest(ValueIterationTest):
     def runAgent(self, moduleDict, numIterations):
-        agent = moduleDict['valueIterationAgents'].AsynchronousValueIterationAgent(self.grid, discount=self.discount, iterations=numIterations)
+        agent = moduleDict['valueIterationAgents'].AsynchronousValueIterationAgent(
+            self.grid, discount=self.discount, iterations=numIterations)
         states = self.grid.getStates()
-        actions = list(reduce(lambda a, b: set(a).union(b), [self.grid.getPossibleActions(state) for state in states]))
+        actions = list(reduce(lambda a, b: set(a).union(b),
+                              [self.grid.getPossibleActions(state) for state in states]))
         values = {}
         qValues = {}
         policy = {}
@@ -222,11 +249,14 @@ class AsynchronousValueIterationTest(ValueIterationTest):
             qValuesPretty[action] = self.prettyValues(qValues[action])
         return (valuesPretty, qValuesPretty, actions, policyPretty)
 
+
 class PrioritizedSweepingValueIterationTest(ValueIterationTest):
     def runAgent(self, moduleDict, numIterations):
-        agent = moduleDict['valueIterationAgents'].PrioritizedSweepingValueIterationAgent(self.grid, discount=self.discount, iterations=numIterations)
+        agent = moduleDict['valueIterationAgents'].PrioritizedSweepingValueIterationAgent(
+            self.grid, discount=self.discount, iterations=numIterations)
         states = self.grid.getStates()
-        actions = list(reduce(lambda a, b: set(a).union(b), [self.grid.getPossibleActions(state) for state in states]))
+        actions = list(reduce(lambda a, b: set(a).union(b),
+                              [self.grid.getPossibleActions(state) for state in states]))
         values = {}
         qValues = {}
         policy = {}
@@ -247,6 +277,7 @@ class PrioritizedSweepingValueIterationTest(ValueIterationTest):
         for action in actions:
             qValuesPretty[action] = self.prettyValues(qValues[action])
         return (valuesPretty, qValuesPretty, actions, policyPretty)
+
 
 class ApproximateQLearningTest(testClasses.TestCase):
 
@@ -255,7 +286,8 @@ class ApproximateQLearningTest(testClasses.TestCase):
         self.discount = float(testDict['discount'])
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         if 'noise' in testDict: self.grid.setNoise(float(testDict['noise']))
-        if 'livingReward' in testDict: self.grid.setLivingReward(float(testDict['livingReward']))
+        if 'livingReward' in testDict: self.grid.setLivingReward(
+            float(testDict['livingReward']))
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         self.env = gridworld.GridworldEnvironment(self.grid)
         self.epsilon = float(testDict['epsilon'])
@@ -263,10 +295,12 @@ class ApproximateQLearningTest(testClasses.TestCase):
         self.extractor = 'IdentityExtractor'
         if 'extractor' in testDict:
             self.extractor = testDict['extractor']
-        self.opts = {'actionFn': self.env.getPossibleActions, 'epsilon': self.epsilon, 'gamma': self.discount, 'alpha': self.learningRate}
+        self.opts = {'actionFn': self.env.getPossibleActions, 'epsilon': self.epsilon,
+                     'gamma': self.discount, 'alpha': self.learningRate}
         numExperiences = int(testDict['numExperiences'])
         maxPreExperiences = 10
-        self.numsExperiencesForDisplay = list(range(min(numExperiences, maxPreExperiences)))
+        self.numsExperiencesForDisplay = list(
+            range(min(numExperiences, maxPreExperiences)))
         self.testOutFile = testDict['test_out_file']
         if sys.platform == 'win32':
             _, question_name, test_name = testDict['test_out_file'].split('\\')
@@ -288,12 +322,16 @@ class ApproximateQLearningTest(testClasses.TestCase):
         failureOutputFileString = ''
         failureOutputStdString = ''
         for n in self.numsExperiencesForDisplay:
-            testPass, stdOutString, fileOutString = self.executeNExperiences(grades, moduleDict, solutionDict, n)
+            testPass, stdOutString, fileOutString = self.executeNExperiences(grades,
+                                                                             moduleDict,
+                                                                             solutionDict,
+                                                                             n)
             failureOutputStdString += stdOutString
             failureOutputFileString += fileOutString
             if not testPass:
                 self.addMessage(failureOutputStdString)
-                self.addMessage('For more details to help you debug, see test output file %s\n\n' % self.testOutFile)
+                self.addMessage(
+                    'For more details to help you debug, see test output file %s\n\n' % self.testOutFile)
                 self.writeFailureFile(failureOutputFileString)
                 return self.testFail(grades)
         self.removeFailureFileIfExists()
@@ -309,18 +347,24 @@ class ApproximateQLearningTest(testClasses.TestCase):
         weightsKey = 'weights_k_%d' % n
         if weights == eval(solutionDict[weightsKey]):
             fileOutString += "Weights at iteration %d are correct." % n
-            fileOutString += "   Student/correct solution:\n\n%s\n\n" % pp.pformat(weights)
+            fileOutString += "   Student/correct solution:\n\n%s\n\n" % pp.pformat(
+                weights)
         for action in actions:
             qValuesKey = 'q_values_k_%d_action_%s' % (n, action)
             qValues = qValuesPretty[action]
             if self.comparePrettyValues(qValues, solutionDict[qValuesKey]):
-                fileOutString += "Q-Values at iteration %d for action '%s' are correct." % (n, action)
-                fileOutString += "   Student/correct solution:\n\t%s" % self.prettyValueSolutionString(qValuesKey, qValues)
+                fileOutString += "Q-Values at iteration %d for action '%s' are correct." % (
+                n, action)
+                fileOutString += "   Student/correct solution:\n\t%s" % self.prettyValueSolutionString(
+                    qValuesKey, qValues)
             else:
                 testPass = False
-                outString = "Q-Values at iteration %d for action '%s' are NOT correct." % (n, action)
-                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString(qValuesKey, qValues)
-                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString(qValuesKey, solutionDict[qValuesKey])
+                outString = "Q-Values at iteration %d for action '%s' are NOT correct." % (
+                n, action)
+                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString(
+                    qValuesKey, qValues)
+                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString(
+                    qValuesKey, solutionDict[qValuesKey])
                 stdOutString += outString
                 fileOutString += outString
         return testPass, stdOutString, fileOutString
@@ -329,20 +373,25 @@ class ApproximateQLearningTest(testClasses.TestCase):
         with open(filePath, 'w') as handle:
             for n in self.numsExperiencesForDisplay:
                 qValuesPretty, weights, actions, _ = self.runAgent(moduleDict, n)
-                handle.write(self.prettyValueSolutionString('weights_k_%d' % n, pp.pformat(weights)))
+                handle.write(self.prettyValueSolutionString('weights_k_%d' % n,
+                                                            pp.pformat(weights)))
                 for action in actions:
-                    handle.write(self.prettyValueSolutionString('q_values_k_%d_action_%s' % (n, action), qValuesPretty[action]))
+                    handle.write(self.prettyValueSolutionString(
+                        'q_values_k_%d_action_%s' % (n, action), qValuesPretty[action]))
         return True
 
     def runAgent(self, moduleDict, numExperiences):
-        agent = moduleDict['qlearningAgents'].ApproximateQAgent(extractor=self.extractor, **self.opts)
-        states = [state for state in self.grid.getStates() if len(self.grid.getPossibleActions(state)) > 0]
+        agent = moduleDict['qlearningAgents'].ApproximateQAgent(extractor=self.extractor,
+                                                                **self.opts)
+        states = [state for state in self.grid.getStates() if
+                  len(self.grid.getPossibleActions(state)) > 0]
         states.sort()
         lastExperience = None
         for i in range(numExperiences):
             lastExperience = self.experiences.get_experience()
             agent.update(*lastExperience)
-        actions = list(reduce(lambda a, b: set(a).union(b), [self.grid.getPossibleActions(state) for state in states]))
+        actions = list(reduce(lambda a, b: set(a).union(b),
+                              [self.grid.getPossibleActions(state) for state in states]))
         qValues = {}
         weights = agent.getWeights()
         for state in states:
@@ -363,7 +412,7 @@ class ApproximateQLearningTest(testClasses.TestCase):
         pretty = ''
         states = self.grid.getStates()
         for ybar in range(self.grid.grid.height):
-            y = self.grid.grid.height-1-ybar
+            y = self.grid.grid.height - 1 - ybar
             row = []
             for x in range(self.grid.grid.width):
                 if (x, y) in states:
@@ -371,10 +420,10 @@ class ApproximateQLearningTest(testClasses.TestCase):
                     if value is None:
                         row.append('   illegal')
                     else:
-                        row.append(formatString.format(elements[(x,y)]))
+                        row.append(formatString.format(elements[(x, y)]))
                 else:
                     row.append('_' * 10)
-            pretty += '        %s\n' % ("   ".join(row), )
+            pretty += '        %s\n' % ("   ".join(row),)
         pretty += '\n'
         return pretty
 
@@ -417,15 +466,18 @@ class QLearningTest(testClasses.TestCase):
         self.discount = float(testDict['discount'])
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         if 'noise' in testDict: self.grid.setNoise(float(testDict['noise']))
-        if 'livingReward' in testDict: self.grid.setLivingReward(float(testDict['livingReward']))
+        if 'livingReward' in testDict: self.grid.setLivingReward(
+            float(testDict['livingReward']))
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         self.env = gridworld.GridworldEnvironment(self.grid)
         self.epsilon = float(testDict['epsilon'])
         self.learningRate = float(testDict['learningRate'])
-        self.opts = {'actionFn': self.env.getPossibleActions, 'epsilon': self.epsilon, 'gamma': self.discount, 'alpha': self.learningRate}
+        self.opts = {'actionFn': self.env.getPossibleActions, 'epsilon': self.epsilon,
+                     'gamma': self.discount, 'alpha': self.learningRate}
         numExperiences = int(testDict['numExperiences'])
         maxPreExperiences = 10
-        self.numsExperiencesForDisplay = list(range(min(numExperiences, maxPreExperiences)))
+        self.numsExperiencesForDisplay = list(
+            range(min(numExperiences, maxPreExperiences)))
         self.testOutFile = testDict['test_out_file']
         if sys.platform == 'win32':
             _, question_name, test_name = testDict['test_out_file'].split('\\')
@@ -448,20 +500,27 @@ class QLearningTest(testClasses.TestCase):
         failureOutputStdString = ''
         for n in self.numsExperiencesForDisplay:
             checkValuesAndPolicy = (n == self.numsExperiencesForDisplay[-1])
-            testPass, stdOutString, fileOutString = self.executeNExperiences(grades, moduleDict, solutionDict, n, checkValuesAndPolicy)
+            testPass, stdOutString, fileOutString = self.executeNExperiences(grades,
+                                                                             moduleDict,
+                                                                             solutionDict,
+                                                                             n,
+                                                                             checkValuesAndPolicy)
             failureOutputStdString += stdOutString
             failureOutputFileString += fileOutString
             if not testPass:
                 self.addMessage(failureOutputStdString)
-                self.addMessage('For more details to help you debug, see test output file %s\n\n' % self.testOutFile)
+                self.addMessage(
+                    'For more details to help you debug, see test output file %s\n\n' % self.testOutFile)
                 self.writeFailureFile(failureOutputFileString)
                 return self.testFail(grades)
         self.removeFailureFileIfExists()
         return self.testPass(grades)
 
-    def executeNExperiences(self, grades, moduleDict, solutionDict, n, checkValuesAndPolicy):
+    def executeNExperiences(self, grades, moduleDict, solutionDict, n,
+                            checkValuesAndPolicy):
         testPass = True
-        valuesPretty, qValuesPretty, actions, policyPretty, lastExperience = self.runAgent(moduleDict, n)
+        valuesPretty, qValuesPretty, actions, policyPretty, lastExperience = self.runAgent(
+            moduleDict, n)
         stdOutString = ''
         # fileOutString = "==================== Iteration %d ====================\n" % n
         fileOutString = ''
@@ -478,24 +537,31 @@ class QLearningTest(testClasses.TestCase):
                 pass
             else:
                 testPass = False
-                outString = "Q-Values at iteration %d for action '%s' are NOT correct." % (n, action)
-                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString(qValuesKey, qValues)
-                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString(qValuesKey, solutionDict[qValuesKey])
+                outString = "Q-Values at iteration %d for action '%s' are NOT correct." % (
+                n, action)
+                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString(
+                    qValuesKey, qValues)
+                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString(
+                    qValuesKey, solutionDict[qValuesKey])
                 stdOutString += outString
                 fileOutString += outString
         if checkValuesAndPolicy:
             if not self.comparePrettyValues(valuesPretty, solutionDict['values']):
                 testPass = False
                 outString = "Values are NOT correct."
-                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString('values', valuesPretty)
-                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString('values', solutionDict['values'])
+                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString(
+                    'values', valuesPretty)
+                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString(
+                    'values', solutionDict['values'])
                 stdOutString += outString
                 fileOutString += outString
             if not self.comparePrettyValues(policyPretty, solutionDict['policy']):
                 testPass = False
                 outString = "Policy is NOT correct."
-                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString('policy', policyPretty)
-                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString('policy', solutionDict['policy'])
+                outString += "   Student solution:\n\t%s" % self.prettyValueSolutionString(
+                    'policy', policyPretty)
+                outString += "   Correct solution:\n\t%s" % self.prettyValueSolutionString(
+                    'policy', solutionDict['policy'])
                 stdOutString += outString
                 fileOutString += outString
         return testPass, stdOutString, fileOutString
@@ -505,22 +571,26 @@ class QLearningTest(testClasses.TestCase):
             valuesPretty = ''
             policyPretty = ''
             for n in self.numsExperiencesForDisplay:
-                valuesPretty, qValuesPretty, actions, policyPretty, _ = self.runAgent(moduleDict, n)
+                valuesPretty, qValuesPretty, actions, policyPretty, _ = self.runAgent(
+                    moduleDict, n)
                 for action in actions:
-                    handle.write(self.prettyValueSolutionString('q_values_k_%d_action_%s' % (n, action), qValuesPretty[action]))
+                    handle.write(self.prettyValueSolutionString(
+                        'q_values_k_%d_action_%s' % (n, action), qValuesPretty[action]))
             handle.write(self.prettyValueSolutionString('values', valuesPretty))
             handle.write(self.prettyValueSolutionString('policy', policyPretty))
         return True
 
     def runAgent(self, moduleDict, numExperiences):
         agent = moduleDict['qlearningAgents'].QLearningAgent(**self.opts)
-        states = [state for state in self.grid.getStates() if len(self.grid.getPossibleActions(state)) > 0]
+        states = [state for state in self.grid.getStates() if
+                  len(self.grid.getPossibleActions(state)) > 0]
         states.sort()
         lastExperience = None
         for i in range(numExperiences):
             lastExperience = self.experiences.get_experience()
             agent.update(*lastExperience)
-        actions = list(reduce(lambda a, b: set(a).union(b), [self.grid.getPossibleActions(state) for state in states]))
+        actions = list(reduce(lambda a, b: set(a).union(b),
+                              [self.grid.getPossibleActions(state) for state in states]))
         values = {}
         qValues = {}
         policy = {}
@@ -546,7 +616,7 @@ class QLearningTest(testClasses.TestCase):
         pretty = ''
         states = self.grid.getStates()
         for ybar in range(self.grid.grid.height):
-            y = self.grid.grid.height-1-ybar
+            y = self.grid.grid.height - 1 - ybar
             row = []
             for x in range(self.grid.grid.width):
                 if (x, y) in states:
@@ -554,10 +624,10 @@ class QLearningTest(testClasses.TestCase):
                     if value is None:
                         row.append('   illegal')
                     else:
-                        row.append(formatString.format(elements[(x,y)]))
+                        row.append(formatString.format(elements[(x, y)]))
                 else:
                     row.append('_' * 10)
-            pretty += '        %s\n' % ("   ".join(row), )
+            pretty += '        %s\n' % ("   ".join(row),)
         pretty += '\n'
         return pretty
 
@@ -600,7 +670,8 @@ class EpsilonGreedyTest(testClasses.TestCase):
         self.discount = float(testDict['discount'])
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         if 'noise' in testDict: self.grid.setNoise(float(testDict['noise']))
-        if 'livingReward' in testDict: self.grid.setLivingReward(float(testDict['livingReward']))
+        if 'livingReward' in testDict: self.grid.setLivingReward(
+            float(testDict['livingReward']))
 
         self.grid = gridworld.Gridworld(parseGrid(testDict['grid']))
         self.env = gridworld.GridworldEnvironment(self.grid)
@@ -608,7 +679,8 @@ class EpsilonGreedyTest(testClasses.TestCase):
         self.learningRate = float(testDict['learningRate'])
         self.numExperiences = int(testDict['numExperiences'])
         self.numIterations = int(testDict['iterations'])
-        self.opts = {'actionFn': self.env.getPossibleActions, 'epsilon': self.epsilon, 'gamma': self.discount, 'alpha': self.learningRate}
+        self.opts = {'actionFn': self.env.getPossibleActions, 'epsilon': self.epsilon,
+                     'gamma': self.discount, 'alpha': self.learningRate}
         if sys.platform == 'win32':
             _, question_name, test_name = testDict['test_out_file'].split('\\')
         else:
@@ -629,7 +701,8 @@ class EpsilonGreedyTest(testClasses.TestCase):
 
     def runAgent(self, moduleDict):
         agent = moduleDict['qlearningAgents'].QLearningAgent(**self.opts)
-        states = [state for state in self.grid.getStates() if len(self.grid.getPossibleActions(state)) > 0]
+        states = [state for state in self.grid.getStates() if
+                  len(self.grid.getPossibleActions(state)) > 0]
         states.sort()
         for i in range(self.numExperiences):
             lastExperience = self.experiences.get_experience()
@@ -651,12 +724,15 @@ class EpsilonGreedyTest(testClasses.TestCase):
             # e = epsilon, g = # greedy actions, n = numIterations, k = numLegalActions
             # g = n * [(1-e) + e/k] -> e = (n - g) / (n - n/k)
             empiricalEpsilonNumerator = self.numIterations - numGreedyChoices
-            empiricalEpsilonDenominator = self.numIterations - self.numIterations / float(numLegalActions)
+            empiricalEpsilonDenominator = self.numIterations - self.numIterations / float(
+                numLegalActions)
             empiricalEpsilon = empiricalEpsilonNumerator / empiricalEpsilonDenominator
             error = abs(empiricalEpsilon - self.epsilon)
             if error > tolerance:
                 self.addMessage("Epsilon-greedy action selection is not correct.")
-                self.addMessage("Actual epsilon = %f; student empirical epsilon = %f; error = %f > tolerance = %f" % (self.epsilon, empiricalEpsilon, error, tolerance))
+                self.addMessage(
+                    "Actual epsilon = %f; student empirical epsilon = %f; error = %f > tolerance = %f" % (
+                    self.epsilon, empiricalEpsilon, error, tolerance))
                 return False
         return True
 
@@ -696,28 +772,36 @@ class EvalAgentTest(testClasses.TestCase):
         super(EvalAgentTest, self).__init__(question, testDict)
         self.pacmanParams = testDict['pacmanParams']
 
-        self.scoreMinimum = int(testDict['scoreMinimum']) if 'scoreMinimum' in testDict else None
-        self.nonTimeoutMinimum = int(testDict['nonTimeoutMinimum']) if 'nonTimeoutMinimum' in testDict else None
-        self.winsMinimum = int(testDict['winsMinimum']) if 'winsMinimum' in testDict else None
+        self.scoreMinimum = int(
+            testDict['scoreMinimum']) if 'scoreMinimum' in testDict else None
+        self.nonTimeoutMinimum = int(
+            testDict['nonTimeoutMinimum']) if 'nonTimeoutMinimum' in testDict else None
+        self.winsMinimum = int(
+            testDict['winsMinimum']) if 'winsMinimum' in testDict else None
 
-        self.scoreThresholds = [int(s) for s in testDict.get('scoreThresholds','').split()]
-        self.nonTimeoutThresholds = [int(s) for s in testDict.get('nonTimeoutThresholds','').split()]
-        self.winsThresholds = [int(s) for s in testDict.get('winsThresholds','').split()]
+        self.scoreThresholds = [int(s) for s in
+                                testDict.get('scoreThresholds', '').split()]
+        self.nonTimeoutThresholds = [int(s) for s in
+                                     testDict.get('nonTimeoutThresholds', '').split()]
+        self.winsThresholds = [int(s) for s in testDict.get('winsThresholds', '').split()]
 
-        self.maxPoints = sum([len(t) for t in [self.scoreThresholds, self.nonTimeoutThresholds, self.winsThresholds]])
-
+        self.maxPoints = sum([len(t) for t in
+                              [self.scoreThresholds, self.nonTimeoutThresholds,
+                               self.winsThresholds]])
 
     def execute(self, grades, moduleDict, solutionDict):
-        self.addMessage('Grading agent using command:  python pacman.py %s'% (self.pacmanParams,))
+        self.addMessage(
+            'Grading agent using command:  python pacman.py %s' % (self.pacmanParams,))
 
         startTime = time.time()
-        games = pacman.runGames(** pacman.readCommand(self.pacmanParams.split(' ')))
+        games = pacman.runGames(**pacman.readCommand(self.pacmanParams.split(' ')))
         totalTime = time.time() - startTime
         numGames = len(games)
 
         stats = {'time': totalTime, 'wins': [g.state.isWin() for g in games].count(True),
                  'games': games, 'scores': [g.state.getScore() for g in games],
-                 'timeouts': [g.agentTimeout for g in games].count(True), 'crashes': [g.agentCrashed for g in games].count(True)}
+                 'timeouts': [g.agentTimeout for g in games].count(True),
+                 'crashes': [g.agentCrashed for g in games].count(True)}
 
         averageScore = sum(stats['scores']) / float(len(stats['scores']))
         nonTimeouts = numGames - stats['timeouts']
@@ -732,35 +816,39 @@ class EvalAgentTest(testClasses.TestCase):
                         points += 1
             return (passed, points, value, minimum, thresholds, name)
 
-        results = [gradeThreshold(averageScore, self.scoreMinimum, self.scoreThresholds, "average score"),
-                   gradeThreshold(nonTimeouts, self.nonTimeoutMinimum, self.nonTimeoutThresholds, "games not timed out"),
+        results = [gradeThreshold(averageScore, self.scoreMinimum, self.scoreThresholds,
+                                  "average score"),
+                   gradeThreshold(nonTimeouts, self.nonTimeoutMinimum,
+                                  self.nonTimeoutThresholds, "games not timed out"),
                    gradeThreshold(wins, self.winsMinimum, self.winsThresholds, "wins")]
 
         totalPoints = 0
         for passed, points, value, minimum, thresholds, name in results:
-            if minimum == None and len(thresholds)==0:
+            if minimum == None and len(thresholds) == 0:
                 continue
 
             # print passed, points, value, minimum, thresholds, name
             totalPoints += points
             if not passed:
                 assert points == 0
-                self.addMessage("%s %s (fail: below minimum value %s)" % (value, name, minimum))
+                self.addMessage(
+                    "%s %s (fail: below minimum value %s)" % (value, name, minimum))
             else:
-                self.addMessage("%s %s (%s of %s points)" % (value, name, points, len(thresholds)))
+                self.addMessage(
+                    "%s %s (%s of %s points)" % (value, name, points, len(thresholds)))
 
             if minimum != None:
                 self.addMessage("    Grading scheme:")
                 self.addMessage("     < %s:  fail" % (minimum,))
-                if len(thresholds)==0 or minimum != thresholds[0]:
+                if len(thresholds) == 0 or minimum != thresholds[0]:
                     self.addMessage("    >= %s:  0 points" % (minimum,))
                 for idx, threshold in enumerate(thresholds):
-                    self.addMessage("    >= %s:  %s points" % (threshold, idx+1))
+                    self.addMessage("    >= %s:  %s points" % (threshold, idx + 1))
             elif len(thresholds) > 0:
                 self.addMessage("    Grading scheme:")
                 self.addMessage("     < %s:  0 points" % (thresholds[0],))
                 for idx, threshold in enumerate(thresholds):
-                    self.addMessage("    >= %s:  %s points" % (threshold, idx+1))
+                    self.addMessage("    >= %s:  %s points" % (threshold, idx + 1))
 
         if any([not passed for passed, _, _, _, _, _ in results]):
             totalPoints = 0
@@ -772,8 +860,6 @@ class EvalAgentTest(testClasses.TestCase):
             handle.write('# This is the solution file for %s.\n' % self.path)
             handle.write('# File intentionally blank.\n')
         return True
-
-
 
 
 ### q2/q3
@@ -788,16 +874,17 @@ def followPath(policy, start, numSteps=100):
             break
         action = policy[state]
         path.append("(%s,%s)" % state)
-        if action == 'north': nextState = state[0],state[1]+1
-        if action == 'south': nextState = state[0],state[1]-1
-        if action == 'east': nextState = state[0]+1,state[1]
-        if action == 'west': nextState = state[0]-1,state[1]
+        if action == 'north': nextState = state[0], state[1] + 1
+        if action == 'south': nextState = state[0], state[1] - 1
+        if action == 'east': nextState = state[0] + 1, state[1]
+        if action == 'west': nextState = state[0] - 1, state[1]
         if action == 'exit' or action == None:
             path.append('TERMINAL_STATE')
             break
         state = nextState
 
     return path
+
 
 def parseGrid(string):
     grid = [[entry.strip() for entry in line.split()] for line in string.split('\n')]
@@ -814,12 +901,12 @@ def parseGrid(string):
 
 
 def computePolicy(moduleDict, grid, discount):
-    valueIterator = moduleDict['valueIterationAgents'].ValueIterationAgent(grid, discount=discount)
+    valueIterator = moduleDict['valueIterationAgents'].ValueIterationAgent(grid,
+                                                                           discount=discount)
     policy = {}
     for state in grid.getStates():
         policy[state] = valueIterator.computeActionFromValues(state)
     return policy
-
 
 
 class GridPolicyTest(testClasses.TestCase):
@@ -857,7 +944,6 @@ class GridPolicyTest(testClasses.TestCase):
         #    terminal for the terminal state
         self.pathNotVisits = testDict.get('pathNotVisits', None)
 
-
     def execute(self, grades, moduleDict, solutionDict):
         if not hasattr(moduleDict['analysis'], self.parameterFn):
             self.addMessage('Method not implemented: analysis.%s' % (self.parameterFn,))
@@ -876,10 +962,14 @@ class GridPolicyTest(testClasses.TestCase):
                 discount = float(discount)
                 noise = float(noise)
             except:
-                self.addMessage('Did not return a (discount, noise) pair; instead analysis.%s returned: %s' % (self.parameterFn, result))
+                self.addMessage(
+                    'Did not return a (discount, noise) pair; instead analysis.%s returned: %s' % (
+                    self.parameterFn, result))
                 return self.testFail(grades)
             if discount != 0.9 and noise != 0.2:
-                self.addMessage('Must change either the discount or the noise, not both. Returned (discount, noise) = %s' % (result,))
+                self.addMessage(
+                    'Must change either the discount or the noise, not both. Returned (discount, noise) = %s' % (
+                    result,))
                 return self.testFail(grades)
         else:
             try:
@@ -888,7 +978,9 @@ class GridPolicyTest(testClasses.TestCase):
                 noise = float(noise)
                 livingReward = float(livingReward)
             except:
-                self.addMessage('Did not return a (discount, noise, living reward) triple; instead analysis.%s returned: %s' % (self.parameterFn, result))
+                self.addMessage(
+                    'Did not return a (discount, noise, living reward) triple; instead analysis.%s returned: %s' % (
+                    self.parameterFn, result))
                 return self.testFail(grades)
 
         self.grid.setNoise(noise)
@@ -904,22 +996,29 @@ class GridPolicyTest(testClasses.TestCase):
         policyPassed = True
         for x in range(width):
             for y in range(height):
-                if self.policy[x][y] in actionMap and policy[(x,y)] != actionMap[self.policy[x][y]]:
-                    differPoint = (x,y)
+                if self.policy[x][y] in actionMap and policy[(x, y)] != actionMap[
+                    self.policy[x][y]]:
+                    differPoint = (x, y)
                     policyPassed = False
 
         if not policyPassed:
             self.addMessage('Policy not correct.')
-            self.addMessage('    Student policy at %s: %s' % (differPoint, policy[differPoint]))
-            self.addMessage('    Correct policy at %s: %s' % (differPoint, actionMap[self.policy[differPoint[0]][differPoint[1]]]))
+            self.addMessage(
+                '    Student policy at %s: %s' % (differPoint, policy[differPoint]))
+            self.addMessage('    Correct policy at %s: %s' % (
+            differPoint, actionMap[self.policy[differPoint[0]][differPoint[1]]]))
             self.addMessage('    Student policy:')
             self.printPolicy(policy, False)
-            self.addMessage("        Legend:  N,S,E,W at states which move north etc, X at states which exit,")
-            self.addMessage("                 . at states where the policy is not defined (e.g. walls)")
+            self.addMessage(
+                "        Legend:  N,S,E,W at states which move north etc, X at states which exit,")
+            self.addMessage(
+                "                 . at states where the policy is not defined (e.g. walls)")
             self.addMessage('    Correct policy specification:')
             self.printPolicy(self.policy, True)
-            self.addMessage("        Legend:  N,S,E,W for states in which the student policy must move north etc,")
-            self.addMessage("                 _ for states where it doesn't matter what the student policy does.")
+            self.addMessage(
+                "        Legend:  N,S,E,W for states in which the student policy must move north etc,")
+            self.addMessage(
+                "                 _ for states where it doesn't matter what the student policy does.")
             self.printGridworld()
             return self.testFail(grades)
 
@@ -927,21 +1026,26 @@ class GridPolicyTest(testClasses.TestCase):
         path = followPath(policy, self.grid.getStartState())
 
         if self.pathVisits != None and self.pathVisits not in path:
-            self.addMessage('Policy does not visit state %s when moving without noise.' % (self.pathVisits,))
+            self.addMessage(
+                'Policy does not visit state %s when moving without noise.' % (
+                self.pathVisits,))
             self.addMessage('    States visited: %s' % (path,))
             self.addMessage('    Student policy:')
             self.printPolicy(policy, False)
-            self.addMessage("        Legend:  N,S,E,W at states which move north etc, X at states which exit,")
+            self.addMessage(
+                "        Legend:  N,S,E,W at states which move north etc, X at states which exit,")
             self.addMessage("                 . at states where policy not defined")
             self.printGridworld()
             return self.testFail(grades)
 
         if self.pathNotVisits != None and self.pathNotVisits in path:
-            self.addMessage('Policy visits state %s when moving without noise.' % (self.pathNotVisits,))
+            self.addMessage('Policy visits state %s when moving without noise.' % (
+            self.pathNotVisits,))
             self.addMessage('    States visited: %s' % (path,))
             self.addMessage('    Student policy:')
             self.printPolicy(policy, False)
-            self.addMessage("        Legend:  N,S,E,W at states which move north etc, X at states which exit,")
+            self.addMessage(
+                "        Legend:  N,S,E,W at states which move north etc, X at states which exit,")
             self.addMessage("                 . at states where policy not defined")
             self.printGridworld()
             return self.testFail(grades)
@@ -952,28 +1056,32 @@ class GridPolicyTest(testClasses.TestCase):
         self.addMessage('    Gridworld:')
         for line in self.gridText.split('\n'):
             self.addMessage('     ' + line)
-        self.addMessage('        Legend: # wall, _ empty, S start, numbers terminal states with that reward.')
+        self.addMessage(
+            '        Legend: # wall, _ empty, S start, numbers terminal states with that reward.')
 
     def printPolicy(self, policy, policyTypeIsGrid):
         if policyTypeIsGrid:
-            legend = {'N': 'N', 'E': 'E', 'S': 'S', 'W': 'W', ' ': '_', 'X': 'X', '.': '.'}
+            legend = {'N': 'N', 'E': 'E', 'S': 'S', 'W': 'W', ' ': '_', 'X': 'X',
+                      '.': '.'}
         else:
-            legend = {'north': 'N', 'east': 'E', 'south': 'S', 'west': 'W', 'exit': 'X', '.': '.', ' ': '_'}
+            legend = {'north': 'N', 'east': 'E', 'south': 'S', 'west': 'W', 'exit': 'X',
+                      '.': '.', ' ': '_'}
 
         for ybar in range(self.grid.grid.height):
-            y = self.grid.grid.height-1-ybar
+            y = self.grid.grid.height - 1 - ybar
             if policyTypeIsGrid:
-                self.addMessage("        %s" % ("    ".join([legend[policy[x][y]] for x in range(self.grid.grid.width)]),))
+                self.addMessage("        %s" % ("    ".join(
+                    [legend[policy[x][y]] for x in range(self.grid.grid.width)]),))
             else:
-                self.addMessage("        %s" % ("    ".join([legend[policy.get((x,y), '.')]  for x in range(self.grid.grid.width)]),))
+                self.addMessage("        %s" % ("    ".join(
+                    [legend[policy.get((x, y), '.')] for x in
+                     range(self.grid.grid.width)]),))
         # for state in sorted(self.grid.getStates()):
         #     if state != 'TERMINAL_STATE':
         #         self.addMessage('      (%s,%s) %s' % (state[0], state[1], policy[state]))
-
 
     def writeSolution(self, moduleDict, filePath):
         with open(filePath, 'w') as handle:
             handle.write('# This is the solution file for %s.\n' % self.path)
             handle.write('# File intentionally blank.\n')
         return True
-
