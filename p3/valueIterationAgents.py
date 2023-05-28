@@ -58,12 +58,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.discount = discount
         self.iterations = iterations
         self.values = util.Counter()  # A Counter is a dict with default 0
-        self.values_lookahead = util.Counter()
         self.runValueIteration()
-
-    def batch_update(self):
-        """ Batch updates Vs tables """
-        self.values = self.values_lookahead
 
     def runValueIteration(self):
         """
@@ -71,22 +66,27 @@ class ValueIterationAgent(ValueEstimationAgent):
         https://lcalem.github.io/blog/2018/09/24/sutton-chap04-dp#41-policy-evaluation-prediction
         """
 
-        for i in range(self.iterations):
-            states = self.mdp.getStates()
-            for s in states:
-                max_a = self.getAction(s)
-                if max_a != 'illegal':
-                    self.values_lookahead[s] = self.getQValue(s, max_a)
+        for i in range(self.iterations):  # iteration loop
 
-            self.batch_update()
+            # create new table row for lookahead values
+            values_lookahead = util.Counter()
+
+            # get states at this iteration
+            states = self.mdp.getStates()
+
+            # store the max actions at each state to the lookahead row
+            for state in states:
+                max_action = self.getAction(state)
+                if max_action:
+                    values_lookahead[state] = self.getQValue(state, max_action)
+
+            # update lookahead row to the current values row for next iteration to use
+            self.values = values_lookahead
 
     def computeQValueFromValues(self, state, action):
         """
           Compute the Q-value of action in state from the
           value function stored in self.values.
-
-        Q(s,a) = (T * [R + gamma V']
-
         """
         "*** YOUR CODE HERE ***"
 
@@ -94,17 +94,18 @@ class ValueIterationAgent(ValueEstimationAgent):
         transition_model = self.mdp.getTransitionStatesAndProbs(state, action)
 
         # compute Q(s,a) and sum for the action
-        Q_SA = 0.0
-        for pair in transition_model:
-            next_state, T = pair
-            R = self.mdp.getReward(state, action, next_state)
-            V_NEXT = self.getValue(next_state)
-            Q = T * (R + self.discount * V_NEXT)
-            Q_SA += Q
+        q_value_for_state_action = 0.0
 
-            if next_state == 'TERMINAL_STATE': next_state = 'TERM  '
-            print('\t> getQValue next s: {}'.format(next_state), 'T: {:4}  R: {:4}  Vnext: {:4}  Q: {:4}'.format(T, R, V_NEXT, Q))
-        return Q_SA
+        for item in transition_model:
+            next_state = item[0]   # (x, y) or 'TERMINAL STATE'
+            probability = item[1]  # 0 <= P <= 1.0
+            reward = self.mdp.getReward(state, action, next_state)
+            next_state_value = self.getValue(next_state)
+
+            # Q(s,a) = (T * [R + gamma V']
+            q_value_for_state_action += probability * (reward + (self.discount * next_state_value))
+
+        return q_value_for_state_action
 
     def computeActionFromValues(self, state):
         """
@@ -117,19 +118,22 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
 
-        if self.mdp.isTerminal(state): return 'illegal'
+        # no max action at terminal state!
+        if self.mdp.isTerminal(state):
+            return None
+
+        # get all actions from current state
         actions = self.mdp.getPossibleActions(state)
-        print('>> runValueIterationHelper state: {} '.format(state))
-        qa = []
-        for a in actions:
-            q = self.getQValue(state, a)
-            qa.append((q, a))
-            print('> runValueIterationHelper action: {} q: {}'.format(a, q))
 
-        VS_iteration, A_iteration = max(qa, key=lambda x: x[0])
-        print('actual values', VS_iteration, A_iteration)
+        # store (q_value, action) pairs
+        q_value_action_pairs = []
+        for action in actions:
+            q_value_action_pairs.append((self.getQValue(state, action), action))
 
-        return A_iteration
+        # extract max action
+        max_q_value, max_action = max(q_value_action_pairs, key=lambda x: x[0])
+
+        return max_action
 
     def getValue(self, state):
         """
