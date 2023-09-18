@@ -70,6 +70,7 @@ python pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
 ```bash
 python pacman.py -l trickySearch -p AStarFoodSearchAgent
 ```
+
 ## 2. Game Trees
 ```
 cd ai-main\1_game_trees
