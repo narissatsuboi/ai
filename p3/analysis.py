@@ -21,48 +21,71 @@
 
 def question2():
     answerDiscount = 0.9
-    answerNoise = 0.2
+    answerNoise = 0.0
     return answerDiscount, answerNoise
 
 def question3a():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    """
+    Prefer the close exit (+1), risking the cliff (-10)
+    python gridworld.py -a value -i 100 -g DiscountGrid --discount 0.09 --noise 0.0 --livingReward 0.0
+    """
+    answerDiscount = 0.09
+    answerNoise = 0.0
+    answerLivingReward = 0.0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3b():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    """
+    Prefer the close exit (+1), but avoiding the cliff (-10)
+    python gridworld.py -a value -i 100 -g DiscountGrid --discount 0.5 --noise 0.35 --livingReward -1.5
+    """
+    answerDiscount = 0.5
+    answerNoise = 0.35
+    answerLivingReward = -1.5
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3c():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    """
+    Prefer the distant exit (+10), risking the cliff (-10)
+    python gridworld.py -a value -i 100 -g DiscountGrid --discount 0.9 --noise 0.0 --livingReward 0.0
+    """
+    answerDiscount = 0.9
+    answerNoise = 0.0
+    answerLivingReward = 0.0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3d():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    """
+    Prefer the distant exit (+10), avoiding the cliff (-10)
+    python gridworld.py -a value -i 100 -g DiscountGrid --discount 0.9 --noise 0.5 --livingReward 0
+    """
+    answerDiscount = 0.9
+    answerNoise = 0.5
+    answerLivingReward = 0
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3e():
-    answerDiscount = None
-    answerNoise = None
-    answerLivingReward = None
+    """
+    Avoid both exits and the cliff (so an episode should never terminate)
+    python gridworld.py -a value -i 100 -g DiscountGrid --discount 0.9 --noise 0.0 --livingReward 2
+
+    """
+    answerDiscount = 0.9
+    answerNoise = 0
+    answerLivingReward = 2
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question8():
-    answerEpsilon = None
-    answerLearningRate = None
-    return answerEpsilon, answerLearningRate
+    answerEpsilon = 0.9
+    answerLearningRate = 0.50
+    # return answerEpsilon, answerLearningRate
+    return 'NOT POSSIBLE'
+
     # If not possible, return 'NOT POSSIBLE'
 
 if __name__ == '__main__':

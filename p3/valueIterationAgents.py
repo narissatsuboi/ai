@@ -10,7 +10,7 @@
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
-
+from collections import defaultdict
 
 # valueIterationAgents.py
 # -----------------------
@@ -97,13 +97,13 @@ class ValueIterationAgent(ValueEstimationAgent):
         q_value_for_state_action = 0.0
 
         for item in transition_model:
-            next_state = item[0]   # (x, y) or 'TERMINAL STATE'
+            next_state = item[0]  # (x, y) or 'TERMINAL STATE'
             probability = item[1]  # 0 <= P <= 1.0
             reward = self.mdp.getReward(state, action, next_state)
             next_state_value = self.getValue(next_state)
 
             # Q(s,a) = (T * [R + gamma V']
-            q_value_for_state_action += probability * (reward + (self.discount * next_state_value))
+            q_value_for_state_action += probability * (reward + self.discount * next_state_value)
 
         return q_value_for_state_action
 
@@ -116,7 +116,6 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        "*** YOUR CODE HERE ***"
 
         # no max action at terminal state!
         if self.mdp.isTerminal(state):
@@ -181,7 +180,30 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
+        """
+        Each iteration only updates a single state at a time based on list of states
+        generated at before iteration begins.
+        """
         "*** YOUR CODE HERE ***"
+
+        states_list = self.mdp.getStates()
+
+        current_state_idx, n = 0, len(states_list)
+
+        for i in range(self.iterations):
+
+            # if last iteration was last state, reset idx
+            if current_state_idx == n:
+                current_state_idx = 0
+
+            # calculate the action yielding max Q value at current_state
+            # then update its value
+            current_state = states_list[current_state_idx]
+            max_action = self.getAction(current_state)
+            if max_action:
+                self.values[current_state] = self.getQValue(current_state, max_action)
+
+            current_state_idx += 1  # go to next state on next iteration
 
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
@@ -203,4 +225,68 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+        """
+        http://incompleteideas.net/book/ebook/node98.html
+        """
+        pq = util.PriorityQueue()
+        states = self.mdp.getStates()
+        pr_states = self.get_predecessors_map(states)
+
+        for state in states:
+            if not self.mdp.isTerminal(state):
+                diff = abs(self.getValue(state) - self.compute_maxQvalue(state))
+                pq.push(state, -1.0 * diff)
+
+        for i in range(0, self.iterations):
+            if pq.isEmpty():
+                return
+
+            state = pq.pop()
+
+            if not self.mdp.isTerminal(state):
+                self.values[state] = self.compute_maxQvalue(state)
+
+            for pr in pr_states[state]:
+                diff = abs(self.getValue(pr) - self.compute_maxQvalue(pr))
+                if diff > self.theta:
+                    pq.update(pr, -1.0 * diff)
+
+    def get_predecessors_map(self, states):
+        """
+        Predecessors <-> successors. For each state check the probability of all of
+        their actions. Store in predecessors map.
+        """
+        predecessors = {}
+
+        for state in states:
+            actions = self.mdp.getPossibleActions(state)
+
+            for action in actions:
+                transition_model = self.mdp.getTransitionStatesAndProbs(state, action)
+
+                for item in transition_model:
+                    next_state, probability = item
+                    # chance of this state reaching current state
+                    if probability > 0:
+                        if next_state not in predecessors:
+                            predecessors[next_state] = set()
+                        predecessors[next_state].add(state)
+        return predecessors
+
+    def compute_maxQvalue(self, state):
+        """
+        Computes the maximum q value for all possible  actions given a state.
+        """
+        # q_values = []
+        # actions = self.mdp.getPossibleActions(state)
+        # for action in actions:
+        #     q_values.append(self.getQValue(state, action))
+        # q_max = max(q_values) if q_values else float('-inf')
+        # return q_max
+
+        max_q_value = float('-inf')
+        actions = self.mdp.getPossibleActions(state)
+        for action in actions:
+            q_value = self.getQValue(state, action)
+            max_q_value = max(max_q_value, q_value)
+        return max_q_value
