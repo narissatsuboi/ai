@@ -70,3 +70,27 @@ python pacman.py -l mediumCorners -p AStarCornersAgent -z 0.5
 ```bash
 python pacman.py -l trickySearch -p AStarFoodSearchAgent
 ```
+## 2. Game Trees
+```
+cd ai-main\1_game_trees
+```
+### Reflex Agent 
+`ReflexAgent` in `multiagents.py` considers food and ghost locations to maximize the food it reaches without running into an active ghost. 
+```bash
+python pacman.py --frameTime 0 -p ReflexAgent -k 2
+```
+
+### Minimax Adversarial Agent
+`MinimaxAgent` in `multiagents.py` is a generalized algorithm to play against any number of ghosts when they always play optimally. 
+```bash
+python pacman.py -p MinimaxAgent -l minimaxClassic -a depth=4
+```
+
+## Alpha-Beta Pruning
+`AlphaBetaAgent` in `multiagents.py` uses alpha-beta pruning to efficiently traverse the minimax tree when ghosts always play optimally. 
+```bash
+python pacman.py -p AlphaBetaAgent -a depth=3 -l smallClassic
+```
+
+## Expectimax 
+`ExpectimaxAgent` in `multiagents.py` uses Q values to play well against ghosts who don't always play optimally. 
