@@ -1,19 +1,17 @@
-# Advanced AI Search Algoritms with Pacman
+# Advanced AI Algorithms with Pacman
 
 ## Getting Started
 
 To get started with this project, follow these steps:
 
-1. **Download the project code** (`search.zip`).
+1. **Download the project code** (`ai-main.zip`).
 2. **Unzip the downloaded file**.
 3. **Change your terminal directory** to the unzipped project folder.
 
-# 1. Advanced Search 
+## 1. Advanced Search 
 ```
 cd ai-main\1_advanced_search
 ```
-
-## Algorithm Implementations 
 
 ### Depth First Search to Find a Path to a Fixed Object
 
@@ -22,6 +20,9 @@ cd ai-main\1_advanced_search
 ```bash
 python pacman.py -l tinyMaze -p SearchAgent -a fn=tinyMazeSearch
 ```
+
+https://github.com/narissatsuboi/ai/assets/79029751/6008466e-8f1f-4f59-b7bf-badf871e4b8e
+
 
 ### Breadth First Search to Find a Path to a Fixed Object
 `breadthFirstSearch` function in `search.py` uses BFS to find a path through the maze. You can run this implementation using the following command:
